@@ -9,16 +9,14 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 wss.on("connection", (ws) => {
-  ws.on("message", (data) => {
-    console.log(`Recebi a mensagem: "${data}"`);
-    wss.clients.forEach(function (client) { // arrow function n funciona aqui
-      if (client !== ws) {
-        client.send(`Olá, mensagem do outro usuário: ${data}`);
+  ws.on("message", (userMessage) => {
+    wss.clients.forEach(function (client) {
+      // arrow function n funciona aqui
+      if (client !== ws && client.readyState === WebSocket.OPEN) {
+        client.send(userMessage.toString());
       }
     });
   });
-
-  ws.send("Servidor WebSocket iniciado!");
 });
 
 server.listen(port, () => {
